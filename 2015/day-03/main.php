@@ -1,6 +1,7 @@
 <?php
 
-function read_input(String $file_path) {
+function read_input(string $file_path)
+{
     /**
      * Read a file from the given path.
      *
@@ -10,53 +11,59 @@ function read_input(String $file_path) {
     return file_get_contents($file_path);
 }
 
-// Formula: 2*l*w + 2*w*h + 2*h*l
-function calculate_area($length, $width, $height) {
-    return (2 * $length * $width) + (2 * $width * $height) + (2 * $height * $length);
-}
-
-function calculate_smallest_side($length, $width, $height) {
-    return min($length * $width, $width * $height, $height * $length);
-}
-
-function calculate_dimensions($input_path) {
-    $file_content = read_input($input_path);
-    $lines = explode(PHP_EOL, $file_content);
-    $total_dim = 0;
-    foreach ($lines as $line) {
-        $dimensions = explode('x', $line);
-        $total_dim += calculate_area($dimensions[0], $dimensions[1], $dimensions[2]);
-        $total_dim += calculate_smallest_side($dimensions[0], $dimensions[1], $dimensions[2]);
+function traverse_houses(string $file_content)
+{
+    /**
+     * Count the number of houses where at least one present is present.
+     *
+     * @param string $file_content The contents of the file.
+     * @return int The number of houses where at least one present is present.
+     */
+    $house_coordinates = array_fill(0, 2 * strlen($file_content), array_fill(0, 2 * strlen($file_content), 0));
+    $row = strlen($file_content);
+    $col = strlen($file_content);
+    $house_coordinates[$row][$col] += 1;
+    $direction_instructions_index = 0;
+    while ($direction_instructions_index < strlen($file_content)) {
+        switch ($file_content[$direction_instructions_index]) {
+            case '^':
+                $house_coordinates[--$row][$col] += 1;
+                break;
+            case '>':
+                $house_coordinates[$row][++$col] += 1;
+                break;
+            case 'v':
+                $house_coordinates[++$row][$col] += 1;
+                break;
+            case '<':
+                $house_coordinates[$row][--$col] += 1;
+                break;
+            default:
+                break;
+        }
+        $direction_instructions_index++;
     }
-    return $total_dim;
+    return $house_coordinates;
 }
 
-// Formula: side1 + side1 + side2 + side2
-function calculate_ribbon($side1, $side2) {
-    return $side1 + $side1 + $side2 + $side2;
-}
-
-// Formula: l*w*h
-function calculate_bow($length, $width, $height) {
-    return $length * $width * $height;
-}
-
-function calculate_ribbons($input_path) {
-    $file_content = read_input($input_path);
-    $lines = explode(PHP_EOL, $file_content);
-    $total_ribbon = 0;
-    foreach ($lines as $line) {
-        $dimensions = explode('x', $line);
-        sort($dimensions);
-        $total_ribbon += calculate_ribbon($dimensions[0], $dimensions[1]);
-        $total_ribbon += calculate_bow($dimensions[0], $dimensions[1], $dimensions[2]);
+function count_houses_with_present(array $house_coordinates) {
+    $total = 0;
+    for ($row = 0; $row < count($house_coordinates); $row++) {
+        for ($col = 0; $col < count($house_coordinates[$row]); $col++) {
+            if ($house_coordinates[$row][$col] > 0) {
+                $total++;
+            }
+        }
     }
-    return $total_ribbon;
+    return $total;
 }
 
-function main() {
-    echo 'Total surface area: ' . calculate_dimensions(__DIR__ . '/input.txt') . PHP_EOL;
-    echo 'Total feet of ribbon: ' . calculate_ribbons(__DIR__ . '/input.txt') . PHP_EOL;
+function main()
+{
+    $file_content = read_input(__DIR__ . '/input.txt');
+    $house_coordinates = traverse_houses($file_content);
+    $nr_of_houses = count_houses_with_present($house_coordinates);
+    echo 'Number of houses with presents: ' . $nr_of_houses . PHP_EOL;
 };
 
 main();
