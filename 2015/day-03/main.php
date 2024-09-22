@@ -11,13 +11,13 @@ function read_input(string $file_path)
     return file_get_contents($file_path);
 }
 
-function traverse_houses(string $file_content)
+function traverse_houses(string $file_content): array
 {
     /**
      * Count the number of houses where at least one present is present.
      *
      * @param string $file_content The contents of the file.
-     * @return int The number of houses where at least one present is present.
+     * @return array The 2D houses array with the positions Santa and Robo traversed by.
      */
     $house_coordinates = array_fill(0, 2 * strlen($file_content), array_fill(0, 2 * strlen($file_content), 0));
     $row = strlen($file_content);
